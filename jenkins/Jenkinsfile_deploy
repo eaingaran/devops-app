@@ -42,16 +42,13 @@ pipeline {
 		}
 		stage('Building image') {
 			steps {
-				script {
-					sh 'docker create --tag=devops/devops-app:${BUILD_ID} docker/Dockerfile'
-				}
+				sh 'docker create --tag=devops/devops-app:${BUILD_ID} docker/Dockerfile'
 			}
 		}
 		stage('Image upload') {
 			steps {
-				script {
-					//login artifactory docker and upload
-				}
+				sh 'docker login -u admin -p password 34.222.234.203:8081'
+				sh 'docker push 34.222.234.203:8081/devops/devops-app:${BUILD_ID}'
 			}
 		}
         stage('CreateSQL') {
