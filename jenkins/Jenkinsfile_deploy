@@ -13,7 +13,7 @@ pipeline {
                 echo 'Testing the scrips on a temporary database...'
 				sh 'cd database'
 				sh 'ls'
-                sh 'mvn liquibase:dropAll -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://34.222.234.203:9000/testdatabase -Ddb.username=test -Ddb.password=password'
+                sh 'mvn -f database/pom.xml liquibase:dropAll -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://34.222.234.203:9000/testdatabase -Ddb.username=test -Ddb.password=password'
                 sh 'mvn liquibase:update -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://34.222.234.203:9000/testdatabase -Ddb.username=test -Ddb.password=password'
                 sh 'mvn liquibase:rollback -Dliquibase.rollbackCount=10000000 -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://34.222.234.203:9000/testdatabase -Ddb.username=test -Ddb.password=password'
                 sh 'mvn liquibase:update -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://34.222.234.203:9000/testdatabase -Ddb.username=test -Ddb.password=password'
