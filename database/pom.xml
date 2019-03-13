@@ -34,6 +34,11 @@
     </properties>
 	
     <dependencies>
+	<dependency>
+	    <groupId>org.liquibase</groupId>
+	    <artifactId>liquibase-core</artifactId>
+	    <version>${liquibase-version}</version>
+	</dependency>
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
