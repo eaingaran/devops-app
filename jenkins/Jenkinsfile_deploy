@@ -1,0 +1,188 @@
+pipeline {
+    environment {
+        isDeploymentSuccess = ''
+    }
+    agent any
+    tools {
+      maven 'maven'
+      jdk 'jdk1.8.0'
+    }
+    stages {
+        stage('DatabaseDryRun') {
+            steps {
+                echo 'Testing the scrips on a temporary database...'
+				sh 'cd database'
+                sh 'mvn liquibase:dropAll -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://34.222.234.203:9000/testdatabase -Ddb.username=test -Ddb.password=password'
+                sh 'mvn liquibase:update -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://34.222.234.203:9000/testdatabase -Ddb.username=test -Ddb.password=password'
+                sh 'mvn liquibase:rollback -Dliquibase.rollbackCount=10000000 -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://34.222.234.203:9000/testdatabase -Ddb.username=test -Ddb.password=password'
+                sh 'mvn liquibase:update -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://34.222.234.203:9000/testdatabase -Ddb.username=test -Ddb.password=password'
+				sh 'cd ..'
+            }
+        }
+		stage('ApplicationUnitTest') {
+			steps {
+				sh 'cd application'
+				sh 'mvn test'
+				sh 'cd ..'
+			}
+		}
+		stage('ApplicationBuild') {
+			steps {
+				sh 'cd application'
+				sh 'mvn -B -DskipTests clean package'
+				sh 'cd ..'
+			}
+		}
+		stage('StaticCode Analysis') {
+			steps {
+				sh 'cd application'
+				sh 'mvn sonar:sonar -Dsonar.host.url='
+				sh 'cd ..'
+			}
+		}
+		stage('Building image') {
+			steps {
+				script {
+					sh 'docker create --tag=devops/devops-app:${BUILD_ID} docker/Dockerfile'
+				}
+			}
+		}
+		stage('Image upload') {
+			steps {
+				script {
+					//login artifactory docker and upload
+				}
+			}
+		}
+        stage('CreateSQL') {
+            steps {
+                echo 'Creating update SQL from scripts..'
+				sh 'cd database'
+                sh 'mvn clean liquibase:updateSQL -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://34.222.234.203:9000/proddatabase -Ddb.username=prod -Ddb.password=password'
+                sh 'mkdir build && cp target/liquibase/migrate.sql build/update.sql'
+				sh 'cd ..'
+            }
+        }
+        stage('RollbackSQL') {
+            steps {
+                echo 'Creating rollback SQL from scripts..'
+				sh 'cd database'
+                sh 'mvn clean liquibase:futureRollbackSQL -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://34.222.234.203:9000/proddatabase -Ddb.username=prod -Ddb.password=password'
+                sh 'cp target/liquibase/migrate.sql build/rollback.sql'
+				sh 'cd ..'
+            }
+        }
+        stage('ArchiveCreation') {
+            steps {
+                echo 'Creating a tar.gz....'
+				sh 'cd database'
+                sh 'tar -czvf devops-database-0.0.1.${BUILD_ID}.tar.gz build/'
+				sh 'cd ..'
+            }
+        }
+        stage('SQLArchiveUpload') {
+            steps {
+                echo 'Deploying tar file to artifactory....'
+                sh 'curl -uadmin:AP3k8uCck9Xxw1GG3i3yz2rq4Kz -T database/devops-database-0.0.1.${BUILD_ID}.tar.gz "http://34.222.234.203:8081/artifactory/libs-release/xyz/aingaran/dataops/devops-database-0.0.1.${BUILD_ID}.tar.gz"'
+            }
+        }
+        stage('DeploySQL') {
+            steps {
+                echo 'Deploying....'
+                sh 'bash ./database/tools/setup.sh'
+                script {
+                  isDeploymentSuccess = sh(script: 'python3 database/tools/execute_sql.py 34.222.234.203 9000 prod password proddatabase database/build/update.sql', returnStdout: true)
+                }
+                echo 'deployment success? ' 
+                echo isDeploymentSuccess
+            }
+        }
+        stage('DeployRollbackSQL') {
+            when {
+                expression { isDeploymentSuccess == 'Failed' }
+            }
+            steps{
+                echo 'Deploying Rollback....'
+                script {
+                    try {
+                        sh 'python3 database/tools/rollback_sql.py 34.222.234.203 9000 prod password proddatabase database/build/rollback.sql'
+                    } catch(Exception e)    {
+                        echo 'rollback completed...'
+                    }
+                }
+            }
+        }
+        stage('TestDatabase') {
+            steps {
+                echo 'Coming Soon....'
+            }
+        }
+		stage('CreateApplicationYAML')	{
+			steps{
+				sh 'echo "kind: Service
+apiVersion: v1
+metadata:
+  name: devops-app
+  namespace: euc-ns
+spec:
+  selector:
+    app: devops-app
+  ports:
+  - protocol: TCP
+    port: 8080
+  type: NodePort
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: devops-app
+  namespace: euc-ns
+spec:
+  selector:
+      matchLabels:
+        app: devops-app
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: devops-app
+    spec:
+      containers:
+        - name: devops-app
+          image: devops/devops-app:${BUILD_ID}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+" > Appliacation.yaml'
+			}
+		}
+		stage('Deploy the application') {
+			when {
+                expression { isDeploymentSuccess == 'Success' }
+            }
+			steps{
+				//Deploying the docker image as the service using kubernets cd plug in
+				//mehtod to deploy the ymal file
+				kubernetesDeploy(
+					kubeconfigId: 'kubeconfig',
+					configs: 'Application.yml',
+					enableConfigSubstitution: false
+				)
+			}
+		}
+        stage('PrintLog')   {
+            steps   {
+                sh 'cat execution.log ||:'
+            }
+        }
+        stage('DeploymentFailureLogger') {
+            when {
+                expression { isDeploymentSuccess == 'Failed' }
+            }
+            steps {
+                echo 'SQL Failed to Deploy. SQL rolled back and application not deployed... '
+                sh 'exit 1'
+            }
+        }
+    }
+}

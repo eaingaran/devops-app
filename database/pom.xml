@@ -1,0 +1,143 @@
+<project 
+	xmlns="http://maven.apache.org/POM/4.0.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+		http://maven.apache.org/xsd/maven-4.0.0.xsd">
+		
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>xyz.aingaran.dataops</groupId>
+    <artifactId>simple-dataops</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+	
+    <name>Simple DataOps Project</name>
+    <url>https://www.aingaran.xyz</url>
+	
+    <scm>
+        <connection>scm:git:https://github.com/eaingaran/simple-dataops.git</connection>
+        <developerConnection>scm:git:https://github.com/eaingaran/simple-dataops.git</developerConnection>
+        <url>https://github.com/eaingaran/simple-dataops</url>
+    </scm>
+	
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+		
+        <artifactory.url>http://34.221.104.185:8081/artifactory</artifactory.url>
+        <artifactory.user>admin</artifactory.user>
+        <artifactory.key>AP3k8uCck9Xxw1GG3i3yz2rq4Kz</artifactory.key>
+		
+        <liquibase-version>3.6.3</liquibase-version>
+        <liquibase.changelog.file>/src/main/sql/master.xml</liquibase.changelog.file>
+        <liquibase.encoding>cp1250</liquibase.encoding>
+        <liquibase.echo.enabled>true</liquibase.echo.enabled>
+		
+        <db.driver>org.sqlite.JDBC</db.driver>
+        <db.url>jdbc:sqlite:test.db</db.url>
+        <db.username></db.username>
+        <db.password></db.password>
+    </properties>
+	
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>central</id>
+            <name>maven central</name>
+            <url>http://central.maven.org/maven2/</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>bintray-plugins</id>
+            <name>bintray-plugins</name>
+            <url>http://jcenter.bintray.com</url>
+        </pluginRepository>
+    </pluginRepositories>
+	
+    <distributionManagement>
+        <repository>
+            <id>central</id>
+            <name>DataOps Releases</name>
+            <url>${artifactory.url}/libs-release</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <name>DataOps Snapshots</name>
+            <url>${artifactory.url}/libs-snapshot</url>
+        </snapshotRepository>
+    </distributionManagement>
+	
+    <dependencies>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>${liquibase-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.15</version>
+        </dependency>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.25.2</version>
+        </dependency>
+    </dependencies>
+	
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <version>${liquibase-version}</version>
+                <configuration>
+                    <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
+                    <propertyFile>src/main/resources/liquibase/liquibase.properties</propertyFile>
+                    <changeLogFile>src/main/sql/master.xml</changeLogFile>
+                    <driver>${db.driver}</driver>
+                    <url>${db.url}</url>
+                    <username>${db.username}</username>
+                    <password>${db.password}</password>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>update</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jfrog.buildinfo</groupId>
+                <artifactId>artifactory-maven-plugin</artifactId>
+                <version>2.6.1</version>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <id>build-info</id>
+                        <goals>
+                            <goal>publish</goal>
+                        </goals>
+                        <configuration>
+                            <publisher>
+                                <contextUrl>${artifactory.url}</contextUrl>
+                                <username>${artifactory.user}</username>
+                                <password>${artifactory.key}</password>
+                                <excludePatterns>*-tests.jar</excludePatterns>
+                                <repoKey>libs-release</repoKey>
+                                <snapshotRepoKey>libs-snapshot</snapshotRepoKey>
+                            </publisher>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+	
+</project>
