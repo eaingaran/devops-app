@@ -5,7 +5,7 @@ FROM openjdk:8-jdk-alpine
 WORKDIR /app
 
 # Copy the current directory contents into the container at /app
-COPY application/target/devops-app-1.0.0.jar /app/devops-app-1.0.0.jar
+COPY ../application/target/devops-app-1.0.0.jar /app/devops-app-1.0.0.jar
 
 # Make port 8080 available to the world outside this container
 EXPOSE 8080
