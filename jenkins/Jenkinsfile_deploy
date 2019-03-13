@@ -36,7 +36,10 @@ pipeline {
 		stage('StaticCode Analysis') {
 			steps {
 				sh 'cd application'
-				sh 'mvn sonar:sonar -Dsonar.host.url='
+				sh 'mvn sonar:sonar \
+  -Dsonar.projectKey=devops-app \
+  -Dsonar.host.url=http://52.36.87.187:9000 \
+  -Dsonar.login=5a2074ef3103ded03375cbea26928d5c27e724cc'
 				sh 'cd ..'
 			}
 		}
