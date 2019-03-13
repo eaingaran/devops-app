@@ -70,7 +70,7 @@ pipeline {
                 }
             }
         }
-        stage('TestDatabase') {
+        /*stage('TestDatabase') {
             steps {
                 echo 'Coming Soon....'
             }
@@ -264,7 +264,7 @@ spec:
                     }
                 }
             }
-        }
+        }*/
         stage('PrintLog')   {
             steps   {
                 sh 'cat execution.log ||:'
