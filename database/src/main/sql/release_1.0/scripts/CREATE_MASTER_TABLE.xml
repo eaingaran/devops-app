@@ -5,24 +5,14 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd"> 
   <changeSet author="aingaran" id="1">
-    <createTable tableName="MASTER_TABLE">
-      <column name="ID" type="NUMBER(3)">
+    <createTable tableName="users">
+      <column name="id" type="NUMBER(3)">
         <constraints primaryKey="true"/>
       </column>
-	  <column name="NAME" type="VARCHAR2(256)">
+      <column name="name" type="VARCHAR2(256)">
         <constraints nullable="false"/>
       </column>
+      <column name="title" type="VARCHAR2(256)" />
     </createTable>
-  </changeSet>
-  <changeSet author="aingaran" id="2">
-    <insert tableName="MASTER_TABLE">
-        <column name="ID" value="1"/>
-        <column name="NAME" value="someone"/>
-    </insert>
-    <rollback>
-        <sql>
-	    DELETE FROM MASTER_TABLE WHERE ID = 1
-	</sql>
-    </rollback>
   </changeSet>
 </databaseChangeLog>
