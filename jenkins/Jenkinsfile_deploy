@@ -50,7 +50,8 @@ pipeline {
 		stage('Image upload') {
 			steps {
 				script {
-					//login artifactory docker and upload
+					docker login -u admin -p password 34.222.234.203:8081
+					docker push 34.222.234.203:8081/devops/devops-app:${BUILD_ID}
 				}
 			}
 		}
