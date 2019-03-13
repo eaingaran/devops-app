@@ -133,7 +133,7 @@ pipeline {
 					try{
 							sh 'pwd'
 							sh 'ls'
-							sh 'docker build --tag=devops/devops-app:${BUILD_ID} docker'
+							sh 'cd docker && docker build --tag=devops/devops-app:${BUILD_ID} .'
 							isApplicationDeploymentSuccess = 'Success'
 						} catch(Exception e)	{
 							isApplicationDeploymentSuccess = 'Failed'
