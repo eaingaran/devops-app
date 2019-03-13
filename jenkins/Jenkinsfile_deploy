@@ -251,7 +251,7 @@ spec:
         }
         stage('DeploymentFailureLogger') {
             when {
-                expression { isSQLDeploymentSuccess == 'Failed' }
+                expression { isSQLDeploymentSuccess == 'Failed' || isApplicationDeploymentSuccess == 'Failed'}
             }
             steps {
                 echo 'SQL Failed to Deploy. SQL rolled back and application not deployed... '
