@@ -47,8 +47,8 @@ pipeline {
 		}
 		stage('Image upload') {
 			steps {
-				sh 'docker login -u admin -p password 34.222.234.203:8081'
-				sh 'docker push 34.222.234.203:8081/devops/devops-app:${BUILD_ID}'
+				//sh 'docker login -u admin -p password 34.222.234.203:8081'
+				//sh 'docker push 34.222.234.203:8081/devops/devops-app:${BUILD_ID}'
 			}
 		}
         stage('CreateSQL') {
