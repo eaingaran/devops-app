@@ -15,4 +15,28 @@
       <column name="title" type="VARCHAR2(256)" />
     </createTable>
   </changeSet>
+  
+  <!--<changeSet author="aingaran" id="2">
+    <createTable tableName="users1">
+      <column name="id" type="BIGINT">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="name" type="VARCHAR2(256)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="title" type="VARCHAR2(256)" />
+    </createTable>
+  </changeSet>
+  
+  <changeSet author="aingaran" id="3">
+    <createTable tableName="users2">
+      <column name="id" type="BIGINT">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="name" type="VARCHAR2(256)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="title" type="VARCHAR2(256)" />
+    </createTable>
+  </changeSet>-->
 </databaseChangeLog>
