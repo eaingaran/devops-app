@@ -233,11 +233,17 @@ spec:
 					try{
 						//Deploying the docker image as the service using kubernets cd plug in
 						//mehtod to deploy the ymal file
-						kubernetesDeploy(
+						/*kubernetesDeploy(
 							kubeconfigId: 'kubeconfig',
 							configs: 'Application.yml',
 							enableConfigSubstitution: false
-						)
+						)*/
+						containerId = sh(script: 'docker ps -aqf "name=devops-app"', returnStdout: true)
+						if(containerId != '')	{
+							sh 'docker stop devops-app'
+							sh 'docker rm devops-app'
+						}
+						sh 'docker run -d -name=devops-app -p 3000:8080 devops/devops-app:${BUILD_ID}'
 						isApplicationDeploymentSuccess = 'Success'
 					} catch(Exception e)	{
 						isApplicationDeploymentSuccess = 'Failed'
