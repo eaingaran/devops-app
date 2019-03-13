@@ -18,23 +18,23 @@ public class UserController {
     UserRepository userRepository;
 
     @GetMapping("/users")
-    public List<User> getAllNotes() {
+    public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
     @PostMapping("/users")
-    public User createNote(@Valid @RequestBody User user) {
+    public User createUser(@Valid @RequestBody User user) {
         return userRepository.save(user);
     }
 
     @GetMapping("/users/{id}")
-    public User getNoteById(@PathVariable(value = "id") Long noteId) {
+    public User getUserById(@PathVariable(value = "id") Long noteId) {
         return userRepository.findById(noteId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", noteId));
     }
 
     @PutMapping("/users/{id}")
-    public User updateNote(@PathVariable(value = "id") Long noteId,
+    public User updateUser(@PathVariable(value = "id") Long noteId,
                            @Valid @RequestBody User userDetails) {
 
         User user = userRepository.findById(noteId)
@@ -48,7 +48,7 @@ public class UserController {
     }
 
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<?> deleteNote(@PathVariable(value = "id") Long userId) {
+    public ResponseEntity<?> deleteUser(@PathVariable(value = "id") Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
