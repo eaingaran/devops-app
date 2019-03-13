@@ -16,7 +16,7 @@
     </createTable>
   </changeSet>
   
-  <!--<changeSet author="aingaran" id="2">
+  <changeSet author="aingaran" id="2">
     <createTable tableName="users1">
       <column name="id" type="BIGINT">
         <constraints primaryKey="true"/>
@@ -28,7 +28,7 @@
     </createTable>
   </changeSet>
   
-  <changeSet author="aingaran" id="3">
+ <!-- <changeSet author="aingaran" id="3">
     <createTable tableName="users2">
       <column name="id" type="BIGINT">
         <constraints primaryKey="true"/>
