@@ -131,7 +131,7 @@ pipeline {
 			steps {
 				script{
 					try{
-							sh 'docker build --tag=devops/devops-app:${BUILD_ID} docker/Dockerfile'
+							sh 'docker build --tag=devops/devops-app:${BUILD_ID} docker'
 							isApplicationDeploymentSuccess = 'Success'
 						} catch(Exception e)	{
 							isApplicationDeploymentSuccess = 'Failed'
