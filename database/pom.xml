@@ -46,6 +46,14 @@
             <name>maven central</name>
             <url>http://central.maven.org/maven2/</url>
         </repository>
+	<repository>
+	    <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>bintray</id>
+            <name>bintray</name>
+            <url>http://jcenter.bintray.com</url>	
+	</repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
@@ -56,6 +64,14 @@
             <name>bintray-plugins</name>
             <url>http://jcenter.bintray.com</url>
         </pluginRepository>
+	<pluginRepository>
+	    <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>central-plugins</id>
+            <name>maven central-plugins</name>
+            <url>http://central.maven.org/maven2/</url>	
+	</pluginRepository>
     </pluginRepositories>
 	
     <distributionManagement>
