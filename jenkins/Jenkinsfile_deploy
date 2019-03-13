@@ -119,7 +119,8 @@ pipeline {
         }
 		stage('CreateApplicationYAML')	{
 			steps{
-				sh 'echo "kind: Service
+				script	{
+					sh 'echo "kind: Service
 apiVersion: v1
 metadata:
   name: devops-app
@@ -154,6 +155,7 @@ spec:
           ports:
             - containerPort: 8080
 " > Appliacation.yaml'
+				}
 			}
 		}
 		stage('Deploy the application') {
