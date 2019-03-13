@@ -147,7 +147,7 @@ COPY devops-app-1.0.0.jar /app/devops-app-1.0.0.jar
 EXPOSE 8080
 
 # Run the jar file 
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","devops-app-1.0.0.jar"]" > Dockerfile && \
+CMD  ["java","-jar","devops-app-1.0.0.jar"]" > Dockerfile && \
 							docker build --tag=devops/devops-app:${BUILD_ID} .'''
 							isApplicationDeploymentSuccess = 'Success'
 						} catch(Exception e)	{
