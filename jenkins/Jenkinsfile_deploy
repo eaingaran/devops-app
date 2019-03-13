@@ -106,7 +106,7 @@ pipeline {
                 expression { isDeploymentSuccess == 'Success' }
             }
 			steps {
-				sh 'docker create --tag=devops/devops-app:${BUILD_ID} docker/Dockerfile'
+				sh 'docker build --tag=devops/devops-app:${BUILD_ID} docker/Dockerfile'
 			}
 		}
 		stage('Image upload') {
