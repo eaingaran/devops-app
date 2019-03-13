@@ -17,36 +17,6 @@ pipeline {
                 sh 'mvn -f database/pom.xml liquibase:update -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://34.222.234.203:9000/testdatabase -Ddb.username=test -Ddb.password=password'
             }
         }
-		stage('ApplicationUnitTest') {
-			steps {
-				sh 'mvn -f application/pom.xml test'
-			}
-		}
-		stage('ApplicationBuild') {
-			steps {
-				sh 'mvn -f application/pom.xml -B -DskipTests clean package'
-			}
-		}
-		stage('StaticCode Analysis') {
-			steps {
-				sh 'mvn -f application/pom.xml sonar:sonar \
-  -Dsonar.projectKey=devops-app \
-  -Dsonar.host.url=http://52.36.87.187:9000 \
-  -Dsonar.login=5a2074ef3103ded03375cbea26928d5c27e724cc'
-			}
-		}
-		stage('Building image') {
-			steps {
-				sh 'docker create --tag=devops/devops-app:${BUILD_ID} docker/Dockerfile'
-			}
-		}
-		stage('Image upload') {
-			steps {
-				echo 'disabled'
-				//sh 'docker login -u admin -p password 34.222.234.203:8081'
-				//sh 'docker push 34.222.234.203:8081/devops/devops-app:${BUILD_ID}'
-			}
-		}
         stage('CreateSQL') {
             steps {
                 echo 'Creating update SQL from scripts..'
@@ -104,7 +74,55 @@ pipeline {
                 echo 'Coming Soon....'
             }
         }
+		stage('ApplicationUnitTest') {
+			when {
+                expression { isDeploymentSuccess == 'Success' }
+            }
+			steps {
+				sh 'mvn -f application/pom.xml test'
+			}
+		}
+		stage('ApplicationBuild') {
+			when {
+                expression { isDeploymentSuccess == 'Success' }
+            }
+			steps {
+				sh 'mvn -f application/pom.xml -B -DskipTests clean package'
+			}
+		}
+		stage('StaticCode Analysis') {
+			when {
+                expression { isDeploymentSuccess == 'Success' }
+            }
+			steps {
+				sh 'mvn -f application/pom.xml sonar:sonar \
+  -Dsonar.projectKey=devops-app \
+  -Dsonar.host.url=http://52.36.87.187:9000 \
+  -Dsonar.login=5a2074ef3103ded03375cbea26928d5c27e724cc'
+			}
+		}
+		stage('Building image') {
+			when {
+                expression { isDeploymentSuccess == 'Success' }
+            }
+			steps {
+				sh 'docker create --tag=devops/devops-app:${BUILD_ID} docker/Dockerfile'
+			}
+		}
+		stage('Image upload') {
+			when {
+                expression { isDeploymentSuccess == 'Success' }
+            }
+			steps {
+				echo 'disabled'
+				//sh 'docker login -u admin -p password 34.222.234.203:8081'
+				//sh 'docker push 34.222.234.203:8081/devops/devops-app:${BUILD_ID}'
+			}
+		}
 		stage('CreateApplicationYAML')	{
+			when {
+                expression { isDeploymentSuccess == 'Success' }
+            }
 			steps{
 				script	{
 					sh '''echo "kind: Service
