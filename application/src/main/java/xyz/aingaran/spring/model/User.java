@@ -1,12 +1,10 @@
 package xyz.aingaran.spring.model;
 
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
 import javax.persistence.*;
 
 @Entity
 @Table(name = "users")
-@EntityListeners(AuditingEntityListener.class)
+//@EntityListeners(AuditingEntityListener.class)
 public class User {
 
     @Id
