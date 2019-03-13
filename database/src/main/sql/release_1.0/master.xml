@@ -6,5 +6,5 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
 
   <!-- all files -->
-  <include file="scripts/CREATE_MASTER_TABLE.xml" relativeToChangelogFile="true"/>
+  <include file="scripts/CREATE_USERS.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog> 
