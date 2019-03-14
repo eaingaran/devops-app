@@ -16,27 +16,14 @@
     </createTable>
   </changeSet>
   
-  <!-- <changeSet author="aingaran" id="2">
-    <createTable tableName="users1">
-      <column name="id" type="BIGINT">
-        <constraints primaryKey="true"/>
-      </column>
-      <column name="name" type="VARCHAR2(256)">
-        <constraints nullable="false"/>
-      </column>
-      <column name="title" type="VARCHAR2(256)" />
-    </createTable>
+  <changeSet author="aingaran" id="2">
+    <sql>
+      insert into users values (1, 'someone', 'Mr.');
+    </sql>
+    <rollback>
+      <sql>
+        delete from users where id = 1;
+      </sql>
+    </rollback>
   </changeSet>
-  
- <changeSet author="aingaran" id="3">
-    <createTable tableName="users2">
-      <column name="id" type="BIGINT">
-        <constraints primaryKey="true"/>
-      </column>
-      <column name="name" type="VARCHAR2(256)">
-        <constraints nullable="false"/>
-      </column>
-      <column name="title" type="VARCHAR2(256)" />
-    </createTable>
-  </changeSet>-->
 </databaseChangeLog>
