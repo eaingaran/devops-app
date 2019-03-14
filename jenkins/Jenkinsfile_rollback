@@ -107,9 +107,10 @@ spec:
             }
 			steps{
 				script	{
-					echo 'not now'
-					//sh 'docker login -u admin -p password 34.222.234.203:8081'
-					//sh 'docker pull 34.222.234.203:8081/devops/devops-app:${ROLLBACK_VERSION}'
+					//echo 'not now'
+					sh 'docker login -u eaingaran -p password'
+					sh 'docker pull eaingaran/devops-app:${ROLLBACK_VERSION}'
+					sh 'docker run -d --name=devops-app -p 3000:3000 eaingaran/devops-app:${ROLLBACK_VERSION}'
 					/*kubernetesDeploy(
 						kubeconfigId: 'kubeconfig',
 						configs: 'Application.yml',
@@ -122,7 +123,7 @@ spec:
 						sh 'docker stop devops-app'
 						sh 'docker rm devops-app'
 					}
-					sh 'docker run -d --name=devops-app -p 3000:3000 devops/devops-app:${BUILD_ID}'*/
+					sh 'docker run -d --name=devops-app -p 3000:3000 eaingaran/devops-app:${ROLLBACK_VERSION}'*/
 				}
 			}
 		}
