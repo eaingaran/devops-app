@@ -17,6 +17,6 @@ public class IndexController {
     @GetMapping
     public String sayHello() {
         logger.info("Requested to say welcome .");
-        return "Hello and Welcome to the DevOps application V1. \nYou can view users by making a GET request to /api/uses endpoint.";
+        return "Hello and Welcome to the DevOps application V2. \nYou can view users by making a GET request to /api/uses endpoint.";
     }
 }
