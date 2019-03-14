@@ -41,7 +41,7 @@ pipeline {
         stage('SQLArchiveUpload') {
             steps {
                 echo 'Deploying tar file to artifactory....'
-                sh 'curl -uadmin:AP9skB1DfVyQi43FTiNSEZGzpz2 -T devops-database-0.0.1.${BUILD_ID}.tar.gz "http://54.218.219.205:30003/artifactory/libs-release/xyz/aingaran/dataops/devops-database-0.0.1.${BUILD_ID}.tar.gz"'
+                sh 'curl -uadmin:AP9skB1DfVyQi43FTiNSEZGzpz2 -T devops-database-0.0.1.${BUILD_ID}.tar.gz "http://54.218.219.205:30003/artifactory/libs-release-local/xyz/aingaran/dataops/devops-database-0.0.1.${BUILD_ID}.tar.gz"'
             }
         }
         stage('DeploySQL') {
