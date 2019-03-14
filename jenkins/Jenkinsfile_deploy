@@ -1,0 +1,219 @@
+pipeline {
+    environment {
+        isSQLDeploymentSuccess = ''
+	isApplicationDeploymentSuccess = ''
+    }
+    agent any
+    tools {
+      maven 'maven'
+      jdk 'jdk1.8.0'
+    }
+    stages {
+        stage('Testing database scripts') {
+            steps {
+                echo 'Testing the scrips on a temporary database...'
+                sh 'mvn -f database/pom.xml liquibase:dropAll -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://54.68.116.11:9000/testdatabase -Ddb.username=test -Ddb.password=password'
+                sh 'mvn -f database/pom.xml liquibase:update -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://54.68.116.11:9000/testdatabase -Ddb.username=test -Ddb.password=password'
+                sh 'mvn -f database/pom.xml liquibase:rollback -Dliquibase.rollbackCount=10000000 -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://54.68.116.11:9000/testdatabase -Ddb.username=test -Ddb.password=password'
+                sh 'mvn -f database/pom.xml liquibase:update -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://54.68.116.11:9000/testdatabase -Ddb.username=test -Ddb.password=password'
+            }
+        }
+        stage('Creating SQL for deployment') {
+            steps {
+                echo 'Creating update SQL from scripts..'
+                sh 'mvn -f database/pom.xml clean liquibase:updateSQL -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://54.68.116.11:9000/proddatabase -Ddb.username=prod -Ddb.password=password'
+                sh 'mkdir build && cp database/target/liquibase/migrate.sql build/update.sql'
+            }
+        }
+        stage('Creating SQL for future rollback') {
+            steps {
+                echo 'Creating rollback SQL from scripts..'
+                sh 'mvn -f database/pom.xml clean liquibase:futureRollbackSQL -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://54.68.116.11:9000/proddatabase -Ddb.username=prod -Ddb.password=password'
+                sh 'cp database/target/liquibase/migrate.sql build/rollback.sql'
+            }
+        }
+        stage('Creating SQL archive') {
+            steps {
+                echo 'Creating a tar.gz....'
+                sh 'tar -czvf devops-database-0.0.1.${BUILD_ID}.tar.gz build/'
+            }
+        }
+        stage('Uploading SQL archive to Artifactory') {
+            steps {
+                echo 'Deploying tar file to artifactory....'
+                sh 'curl -uadmin:AP9skB1DfVyQi43FTiNSEZGzpz2 -T devops-database-0.0.1.${BUILD_ID}.tar.gz "http://54.218.219.205:30003/artifactory/libs-release-local/xyz/aingaran/dataops/devops-database-0.0.1.${BUILD_ID}.tar.gz"'
+            }
+        }
+        stage('Deploying SQL script') {
+            steps {
+                echo 'Deploying....'
+                sh 'bash ./database/tools/setup.sh'
+                script {
+                  isSQLDeploymentSuccess = sh(script: 'python3 database/tools/execute_sql.py 54.68.116.11 9000 prod password proddatabase build/update.sql', returnStdout: true)
+                }
+                echo 'deployment success? ' 
+                echo isSQLDeploymentSuccess
+            }
+        }
+        stage('Testing database') {
+            steps {
+                echo 'Coming Soon....'
+            }
+        }
+		stage('Unit Testing application') {
+			when {
+                expression { isSQLDeploymentSuccess == 'Success' }
+            }
+			steps {
+				script {
+					try{
+						sh 'mvn -f application/pom.xml test'
+						isApplicationDeploymentSuccess = 'Success'
+					} catch(Exception e)	{
+						isApplicationDeploymentSuccess = 'Failed'
+					}
+				}
+			}
+		}
+		stage('Building application') {
+			when {
+                expression { isSQLDeploymentSuccess == 'Success' && isApplicationDeploymentSuccess == 'Success'}
+            }
+			steps {
+				script{
+					try{
+						sh 'mvn -f application/pom.xml -B -DskipTests clean package'
+						isApplicationDeploymentSuccess = 'Success'
+					} catch(Exception e)	{
+						isApplicationDeploymentSuccess = 'Failed'
+					}
+				}
+			}
+		}
+		stage('Performing StaticCode Analysis') {
+			when {
+                expression { isSQLDeploymentSuccess == 'Success' && isApplicationDeploymentSuccess == 'Success' }
+            }
+			steps {
+				script{
+					try{
+						sh 'mvn -f application/pom.xml sonar:sonar \
+							-Dsonar.projectKey=devops-app \
+							-Dsonar.host.url=http://34.216.250.85:9000 \
+							-Dsonar.login=be69406e3f0df336017cf98a2958661e8e704a46'
+						isApplicationDeploymentSuccess = 'Success'
+					} catch(Exception e)	{
+						isApplicationDeploymentSuccess = 'Failed'
+					}
+				}
+				
+			}
+		}
+		stage('Building docker image') {
+			when {
+                expression { isSQLDeploymentSuccess == 'Success' && isApplicationDeploymentSuccess == 'Success' }
+            }
+			steps {
+				script{
+					try{
+							writeFile file: 'Dockerfile', text: 'FROM openjdk:8-jdk-alpine\nUSER root\nWORKDIR /app\nCOPY devops-app-1.0.0.jar /app\nEXPOSE 3000\n#CMD ["sleep", "10m"]\nCMD ["/usr/bin/java", "-jar", "devops-app-1.0.0.jar"]'
+							sh 'ls'
+							sh 'cat Dockerfile'
+							sh 'mv Dockerfile application/target/Dockerfile && cd application/target && docker build --tag=devops-app:${BUILD_ID} .'
+							isApplicationDeploymentSuccess = 'Success'
+						} catch(Exception e)	{
+							isApplicationDeploymentSuccess = 'Failed'
+						}
+				}
+				
+			}
+		}
+		stage('Pushing docker image to docker registry') {
+			when {
+                expression { isSQLDeploymentSuccess == 'Success' && isApplicationDeploymentSuccess == 'Success' }
+            }
+			steps {
+				script{
+					try{
+						sh 'docker login -u eaingaran -p password'
+						sh 'docker tag devops-app:${BUILD_ID} eaingaran/devops-app:${BUILD_ID}'
+						sh 'docker push eaingaran/devops-app:${BUILD_ID}'
+						isApplicationDeploymentSuccess = 'Success'
+					} catch(Exception e)	{
+						isApplicationDeploymentSuccess = 'Failed'
+					}
+				}
+				
+			}
+		}
+		stage('Deploying application') {
+			when {
+                expression { isSQLDeploymentSuccess == 'Success' && isApplicationDeploymentSuccess == 'Success' }
+            }
+			steps{
+				script{
+					try{
+						containerId = sh(script: 'docker ps -aqf "name=devops-app"', returnStdout: true)
+						if(containerId != '')	{
+							sh 'docker stop devops-app'
+							sh 'docker rm devops-app'
+						}
+						sh 'docker run -d --name=devops-app -p 3000:3000 -v /home/centos/logs:/logs eaingaran/devops-app:${BUILD_ID}'
+						isApplicationDeploymentSuccess = 'Success'
+					} catch(Exception e)	{
+						isApplicationDeploymentSuccess = 'Failed'
+					}
+				}
+				
+			}
+		}
+		stage('Rolling back the deployment') {
+            when {
+                expression { isSQLDeploymentSuccess == 'Failed' || isApplicationDeploymentSuccess == 'Failed' }
+            }
+            steps{
+                echo 'Deploying Rollback....'
+                script {
+                    try {
+                        sh 'python3 database/tools/rollback_sql.py 54.68.116.11 9000 prod password proddatabase build/rollback.sql'
+                    } catch(Exception e)    {
+                        echo 'SQL rollback completed...'
+                    }
+					try	{
+						  def buildNumber = "${BUILD_ID}" as int
+					  while (buildNumber != 0)    {
+						try	{
+							containerId = sh(script: 'docker ps -aqf "name=devops-app"', returnStdout: true)
+							if(containerId != '')	{
+								sh 'docker stop devops-app'
+								sh 'docker rm devops-app'
+							}
+							buildNumber = buildNumber - 1
+							sh 'docker run -d --name=devops-app -p 3000:3000 -v /home/centos/logs:/logs eaingaran/devops-app:' + buildNumber
+							break
+						} catch(Exception e)	{
+							continue
+						}
+					}
+					} catch (Exception e)	{
+						echo 'Application rollback failed...'
+					}
+				}
+			}
+        }
+        stage('Printing logs')   {
+            steps   {
+                sh 'cat execution.log ||:'
+            }
+        }
+        stage('Checking for failures') {
+            when {
+                expression { isSQLDeploymentSuccess == 'Failed' || isApplicationDeploymentSuccess == 'Failed'}
+            }
+            steps {
+                echo 'SQL Failed to Deploy. SQL rolled back and application not deployed... '
+                sh 'exit 1'
+            }
+        }
+    }
+}
