@@ -12,23 +12,23 @@ pipeline {
         stage('DatabaseDryRun') {
             steps {
                 echo 'Testing the scrips on a temporary database...'
-                sh 'mvn -f database/pom.xml liquibase:dropAll -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://34.222.234.203:9000/testdatabase -Ddb.username=test -Ddb.password=password'
-                sh 'mvn -f database/pom.xml liquibase:update -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://34.222.234.203:9000/testdatabase -Ddb.username=test -Ddb.password=password'
-                sh 'mvn -f database/pom.xml liquibase:rollback -Dliquibase.rollbackCount=10000000 -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://34.222.234.203:9000/testdatabase -Ddb.username=test -Ddb.password=password'
-                sh 'mvn -f database/pom.xml liquibase:update -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://34.222.234.203:9000/testdatabase -Ddb.username=test -Ddb.password=password'
+                sh 'mvn -f database/pom.xml liquibase:dropAll -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://54.68.116.11:9000/testdatabase -Ddb.username=test -Ddb.password=password'
+                sh 'mvn -f database/pom.xml liquibase:update -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://54.68.116.11:9000/testdatabase -Ddb.username=test -Ddb.password=password'
+                sh 'mvn -f database/pom.xml liquibase:rollback -Dliquibase.rollbackCount=10000000 -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://54.68.116.11:9000/testdatabase -Ddb.username=test -Ddb.password=password'
+                sh 'mvn -f database/pom.xml liquibase:update -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://54.68.116.11:9000/testdatabase -Ddb.username=test -Ddb.password=password'
             }
         }
         stage('CreateSQL') {
             steps {
                 echo 'Creating update SQL from scripts..'
-                sh 'mvn -f database/pom.xml clean liquibase:updateSQL -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://34.222.234.203:9000/proddatabase -Ddb.username=prod -Ddb.password=password'
+                sh 'mvn -f database/pom.xml clean liquibase:updateSQL -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://54.68.116.11:9000/proddatabase -Ddb.username=prod -Ddb.password=password'
                 sh 'mkdir build && cp database/target/liquibase/migrate.sql build/update.sql'
             }
         }
         stage('RollbackSQL') {
             steps {
                 echo 'Creating rollback SQL from scripts..'
-                sh 'mvn -f database/pom.xml clean liquibase:futureRollbackSQL -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://34.222.234.203:9000/proddatabase -Ddb.username=prod -Ddb.password=password'
+                sh 'mvn -f database/pom.xml clean liquibase:futureRollbackSQL -Ddb.driver=com.mysql.cj.jdbc.Driver -Ddb.url=jdbc:mysql://54.68.116.11:9000/proddatabase -Ddb.username=prod -Ddb.password=password'
                 sh 'cp database/target/liquibase/migrate.sql build/rollback.sql'
             }
         }
@@ -41,7 +41,7 @@ pipeline {
         stage('SQLArchiveUpload') {
             steps {
                 echo 'Deploying tar file to artifactory....'
-                //sh 'curl -uadmin:AP3k8uCck9Xxw1GG3i3yz2rq4Kz -T devops-database-0.0.1.${BUILD_ID}.tar.gz "http://34.222.234.203:8081/artifactory/libs-release/xyz/aingaran/dataops/devops-database-0.0.1.${BUILD_ID}.tar.gz"'
+                //sh 'curl -uadmin:AP9skB1DfVyQi43FTiNSEZGzpz2 -T devops-database-0.0.1.${BUILD_ID}.tar.gz "http://54.218.219.205:30003/artifactory/libs-release/xyz/aingaran/dataops/devops-database-0.0.1.${BUILD_ID}.tar.gz"'
             }
         }
         stage('DeploySQL') {
@@ -49,7 +49,7 @@ pipeline {
                 echo 'Deploying....'
                 sh 'bash ./database/tools/setup.sh'
                 script {
-                  isSQLDeploymentSuccess = sh(script: 'python3 database/tools/execute_sql.py 34.222.234.203 9000 prod password proddatabase build/update.sql', returnStdout: true)
+                  isSQLDeploymentSuccess = sh(script: 'python3 database/tools/execute_sql.py 54.68.116.11 9000 prod password proddatabase build/update.sql', returnStdout: true)
                 }
                 echo 'deployment success? ' 
                 echo isSQLDeploymentSuccess
@@ -63,7 +63,7 @@ pipeline {
                 echo 'Deploying Rollback....'
                 script {
                     try {
-                        sh 'python3 database/tools/rollback_sql.py 34.222.234.203 9000 prod password proddatabase build/rollback.sql'
+                        sh 'python3 database/tools/rollback_sql.py 54.68.116.11 9000 prod password proddatabase build/rollback.sql'
                     } catch(Exception e)    {
                         echo 'rollback completed...'
                     }
@@ -112,10 +112,10 @@ pipeline {
 			steps {
 				script{
 					try{
-						sh 'mvn -f application/pom.xml sonar:sonar \
-					  -Dsonar.projectKey=devops-app \
-					  -Dsonar.host.url=http://52.36.87.187:9000 \
-					  -Dsonar.login=5a2074ef3103ded03375cbea26928d5c27e724cc'
+						sh 'mvn sonar:sonar \
+  -Dsonar.projectKey=devops-app \
+  -Dsonar.host.url=http://34.216.250.85:9000 \
+  -Dsonar.login=be69406e3f0df336017cf98a2958661e8e704a46'
 						isApplicationDeploymentSuccess = 'Success'
 					} catch(Exception e)	{
 						isApplicationDeploymentSuccess = 'Failed'
@@ -141,12 +141,12 @@ USER root
 
 WORKDIR /app
 
-COPY application/target/devops-app-1.0.0.jar /app
+COPY devops-app-1.0.0.jar /app
 
-EXPOSE 8080
+EXPOSE 3000
 
 CMD [\"java\", \"-jar\", \"devops-app-1.0.0.jar\"]" > Dockerfile && \
-							docker build --tag=34.222.234.203:8081/devops/devops-app:${BUILD_ID} .'''
+							docker build --tag=http://54.218.219.205:30003/devops/devops-app:${BUILD_ID} .'''
 							isApplicationDeploymentSuccess = 'Success'
 						} catch(Exception e)	{
 							isApplicationDeploymentSuccess = 'Failed'
@@ -163,8 +163,8 @@ CMD [\"java\", \"-jar\", \"devops-app-1.0.0.jar\"]" > Dockerfile && \
 				script{
 					try{
 						echo 'disabled'
-						sh 'docker login -u admin -p password 34.222.234.203:8081'
-						sh 'docker push 34.222.234.203:8081/devops/devops-app:${BUILD_ID}'
+						sh 'docker login -u admin -p password http://54.218.219.205:30003'
+						sh 'docker push http://54.218.219.205:30003/devops/devops-app:${BUILD_ID}'
 						isApplicationDeploymentSuccess = 'Success'
 					} catch(Exception e)	{
 						isApplicationDeploymentSuccess = 'Failed'
@@ -241,7 +241,7 @@ spec:
 							sh 'docker stop devops-app'
 							sh 'docker rm devops-app'
 						}
-						sh 'docker run -d --name=devops-app -p 3000:8080 devops/devops-app:${BUILD_ID}'
+						sh 'docker run -d --name=devops-app -p 3000:3000 devops/devops-app:${BUILD_ID}'
 						isApplicationDeploymentSuccess = 'Success'
 					} catch(Exception e)	{
 						isApplicationDeploymentSuccess = 'Failed'
@@ -258,7 +258,7 @@ spec:
                 echo 'Deploying Rollback....'
                 script {
                     try {
-                        sh 'python3 database/tools/rollback_sql.py 34.222.234.203 9000 prod password proddatabase build/rollback.sql'
+                        sh 'python3 database/tools/rollback_sql.py 54.68.116.11 9000 prod password proddatabase build/rollback.sql'
                     } catch(Exception e)    {
                         echo 'rollback completed...'
                     }
