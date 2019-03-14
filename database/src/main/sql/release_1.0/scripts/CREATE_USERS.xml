@@ -38,4 +38,15 @@
     </rollback>
   </changeSet>
 
+  <changeSet author="aingaran" id="4">
+    <sql>
+      insert into users values (3, 'some', 'Mrs.');
+    </sql>
+    <rollback>
+      <sql>
+        delete from user where id = 3;
+      </sql>
+    </rollback>
+  </changeSet>
+
 </databaseChangeLog>
