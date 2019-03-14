@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @SpringBootApplication
 @EnableJpaAuditing
 public class DevOpsApplication {
-	private static final Logger logger = LoggerFactory.getLogger(ElasticSearchApplication.class);
+	private static final Logger logger = LoggerFactory.getLogger(DevOpsApplication.class);
 	private AtomicInteger number = new AtomicInteger(0);
 
 	public static void main(String[] args) {
