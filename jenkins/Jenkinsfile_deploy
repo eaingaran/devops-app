@@ -206,7 +206,7 @@ pipeline {
                 sh 'cat execution.log ||:'
             }
         }
-        stage('Checking for failures') {
+        stage('Logging failure') {
             when {
                 expression { isSQLDeploymentSuccess == 'Failed' || isApplicationDeploymentSuccess == 'Failed'}
             }
