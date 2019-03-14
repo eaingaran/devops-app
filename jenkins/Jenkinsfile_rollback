@@ -10,7 +10,7 @@ pipeline {
       jdk 'jdk1.8.0'
     }
     stages {
-        stage('FindSuccessfullBuilds') {
+        stage('Finding past Successfull Builds') {
             steps {
                 script  {
                   def job = jenkins.model.Jenkins.instance.getItem("devops-app")
@@ -26,7 +26,7 @@ pipeline {
                 }
             }
         }
-        stage('RollbackSQLForSuccessfulBuilds') {
+        stage('Rolling back SQLs of successful builds till desired version') {
             steps   {
                 script  {
                     desiredVersion = "${ROLLBACK_VERSION}"
@@ -59,7 +59,7 @@ pipeline {
             }
         }
 		
-		stage('CreateApplicationYAML')	{
+		/*stage('CreateApplicationYAML')	{
 			when {
                 expression { isRollbackSuccess != 'connection failed'}
             }
@@ -100,8 +100,8 @@ spec:
             - containerPort: 3000
 " > Appliacation.yaml'''
 			}
-		}
-		stage('RollbackApplication') {
+		}*/
+		stage('Rolling back Application to desired version') {
 			when {
                 expression { isRollbackSuccess != 'connection failed'}
             }
@@ -132,12 +132,12 @@ spec:
 				}
 			}
 		}
-        stage('PrintLog')   {
+        stage('Printing logs')   {
             steps   {
                 sh 'cat execution.log ||:'
             }
         }
-        stage('RollbackFailureLogger') {
+        stage('Checking for failures') {
             when {
                 expression { isRollbackSuccess == 'Failed' || isRollbackSuccess == 'connection failed'}
             }
