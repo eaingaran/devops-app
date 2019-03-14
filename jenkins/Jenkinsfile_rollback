@@ -35,7 +35,7 @@ pipeline {
                         if (build != desiredVersion)   {
                             println "Rolling back build " + build
                             file_name = 'devops-database-0.0.1.' + build + '.tar.gz'
-                            file_url = '"http://54.218.219.205:30003/artifactory/libs-release/xyz/aingaran/dataops/' + file_name + '"'
+                            file_url = '"http://54.218.219.205:30003/artifactory/libs-release-local/xyz/aingaran/dataops/' + file_name + '"'
                             sh 'rm ' + file_name + ' ||:'
                             sh 'curl -uadmin:AP9skB1DfVyQi43FTiNSEZGzpz2 ' + file_url + ' -o ' + file_name
                             sh 'tar -xvzf ' + file_name
