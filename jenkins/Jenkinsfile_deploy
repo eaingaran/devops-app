@@ -276,8 +276,29 @@ spec:
                     try {
                         sh 'python3 database/tools/rollback_sql.py 54.68.116.11 9000 prod password proddatabase build/rollback.sql'
                     } catch(Exception e)    {
-                        echo 'rollback completed...'
+                        echo 'SQL rollback completed...'
                     }
+		    try	{
+		    	  def buildNumber = ''
+			  def job = jenkins.model.Jenkins.instance.getItem("devops-app")
+			  job.builds.each {
+			      def build = it
+			      if (it.getResult().toString().equals("SUCCESS")) {
+				  it.badgeActions.each {
+					   buildNumber = build.displayName[1..-1]
+					   break
+				   }
+			      }
+			  }
+			  containerId = sh(script: 'docker ps -aqf "name=devops-app"', returnStdout: true)
+			if(containerId != '')	{
+				sh 'docker stop devops-app'
+				sh 'docker rm devops-app'
+			}
+			sh 'docker run -d --name=devops-app -p 3000:3000 -v /home/centos/logs:/logs eaingaran/devops-app:' + buildNumber
+		    } catch (Exception e)	{
+		    	echo 'Application rollback failed...'
+		    }
                 }
             }
         }
