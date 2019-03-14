@@ -135,7 +135,7 @@ pipeline {
 							sh 'ls'
 							sh '''cd application/target && \
 							echo "# Start with a base image containing Java runtime
-FROM openjdk:8u181-jre
+FROM openjdk:8-jdk-alpine
 
 USER root
 
@@ -145,8 +145,7 @@ COPY devops-app-1.0.0.jar /app
 
 EXPOSE 3000
 
-#CMD [\"java\",\"-jar\",\"devops-app-1.0.0.jar\"]
-CMD [\"pause\", \"10m\"]" > Dockerfile && \
+CMD [\"java\",\"-jar\",\"devops-app-1.0.0.jar\"]" > Dockerfile && \
 							docker build --tag=54.218.219.205:30003/devops/devops-app:${BUILD_ID} .'''
 							isApplicationDeploymentSuccess = 'Success'
 						} catch(Exception e)	{
