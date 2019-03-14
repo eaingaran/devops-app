@@ -278,7 +278,7 @@ spec:
                     } catch(Exception e)    {
                         echo 'SQL rollback completed...'
                     }
-		    try	{
+		    //try	{
 		    	  def builds = []
 			  def job = jenkins.model.Jenkins.instance.getItem("devops-app")
 			  job.builds.each {
@@ -299,9 +299,9 @@ spec:
 				sh 'docker run -d --name=devops-app -p 3000:3000 -v /home/centos/logs:/logs eaingaran/devops-app:' + build
 				break
 			}
-		    } catch (Exception e)	{
-		    	echo 'Application rollback failed...'
-		    }
+		    //} catch (Exception e)	{
+		    //	echo 'Application rollback failed...'
+		   // }
                 }
             }
         }
