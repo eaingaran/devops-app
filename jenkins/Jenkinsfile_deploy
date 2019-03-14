@@ -146,7 +146,7 @@ COPY devops-app-1.0.0.jar /app
 EXPOSE 3000
 
 CMD [\"java\", \"-jar\", \"devops-app-1.0.0.jar\"]" > Dockerfile && \
-							docker build --tag=http://54.218.219.205:30003/devops/devops-app:${BUILD_ID} .'''
+							docker build --tag=54.218.219.205:30003/devops/devops-app:${BUILD_ID} .'''
 							isApplicationDeploymentSuccess = 'Success'
 						} catch(Exception e)	{
 							isApplicationDeploymentSuccess = 'Failed'
@@ -164,7 +164,7 @@ CMD [\"java\", \"-jar\", \"devops-app-1.0.0.jar\"]" > Dockerfile && \
 					try{
 						echo 'disabled'
 						sh 'docker login -u admin -p password http://54.218.219.205:30003'
-						sh 'docker push http://54.218.219.205:30003/devops/devops-app:${BUILD_ID}'
+						sh 'docker push 54.218.219.205:30003/devops/devops-app:${BUILD_ID}'
 						isApplicationDeploymentSuccess = 'Success'
 					} catch(Exception e)	{
 						isApplicationDeploymentSuccess = 'Failed'
