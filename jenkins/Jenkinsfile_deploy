@@ -139,8 +139,6 @@ FROM openjdk:8-jdk-alpine
 
 USER root
 
-WORKDIR /app
-
 COPY devops-app-1.0.0.jar /app
 
 EXPOSE 3000
