@@ -110,6 +110,11 @@ spec:
 					//echo 'not now'
 					sh 'docker login -u eaingaran -p password'
 					sh 'docker pull eaingaran/devops-app:${ROLLBACK_VERSION}'
+					containerId = sh(script: 'docker ps -aqf "name=devops-app"', returnStdout: true)
+					if(containerId != '')	{
+						sh 'docker stop devops-app'
+						sh 'docker rm devops-app'
+					}
 					sh 'docker run -d --name=devops-app -p 3000:3000 eaingaran/devops-app:${ROLLBACK_VERSION}'
 					/*kubernetesDeploy(
 						kubeconfigId: 'kubeconfig',
