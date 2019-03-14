@@ -279,23 +279,26 @@ spec:
                         echo 'SQL rollback completed...'
                     }
 		    try	{
-		    	  def buildNumber = ''
+		    	  def builds = []
 			  def job = jenkins.model.Jenkins.instance.getItem("devops-app")
 			  job.builds.each {
 			      def build = it
 			      if (it.getResult().toString().equals("SUCCESS")) {
 				  it.badgeActions.each {
-					   buildNumber = build.displayName[1..-1]
-					   break
+					   builds.add(build.displayName[1..-1])
 				   }
 			      }
 			  }
-			  containerId = sh(script: 'docker ps -aqf "name=devops-app"', returnStdout: true)
-			if(containerId != '')	{
-				sh 'docker stop devops-app'
-				sh 'docker rm devops-app'
+			  builds.unique()
+			  for (build in builds)    {
+				  containerId = sh(script: 'docker ps -aqf "name=devops-app"', returnStdout: true)
+				if(containerId != '')	{
+					sh 'docker stop devops-app'
+					sh 'docker rm devops-app'
+				}
+				sh 'docker run -d --name=devops-app -p 3000:3000 -v /home/centos/logs:/logs eaingaran/devops-app:' + build
+				break
 			}
-			sh 'docker run -d --name=devops-app -p 3000:3000 -v /home/centos/logs:/logs eaingaran/devops-app:' + buildNumber
 		    } catch (Exception e)	{
 		    	echo 'Application rollback failed...'
 		    }
