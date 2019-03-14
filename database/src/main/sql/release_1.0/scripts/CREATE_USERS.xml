@@ -27,4 +27,15 @@
     </rollback>
   </changeSet>
 
+  <changeSet author="aingaran" id="3">
+    <sql>
+      insert into users values (2, 'someoneelse', 'Mrs.');
+    </sql>
+    <rollback>
+      <sql>
+        delete from users where id = 2;
+      </sql>
+    </rollback>
+  </changeSet>
+
 </databaseChangeLog>
