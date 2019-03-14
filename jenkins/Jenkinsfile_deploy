@@ -112,7 +112,7 @@ pipeline {
 			steps {
 				script{
 					try{
-						sh 'mvn sonar:sonar \
+						sh 'mvn -f application/pom.xml sonar:sonar \
   -Dsonar.projectKey=devops-app \
   -Dsonar.host.url=http://34.216.250.85:9000 \
   -Dsonar.login=be69406e3f0df336017cf98a2958661e8e704a46'
