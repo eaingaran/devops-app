@@ -278,30 +278,25 @@ spec:
                     } catch(Exception e)    {
                         echo 'SQL rollback completed...'
                     }
-		    //try	{
-		    	  def builds = []
-			  def job = jenkins.model.Jenkins.instance.getItem("devops-app")
-			  job.builds.each {
-			      def build = it
-			      if (it.getResult().toString().equals("SUCCESS")) {
-				  it.badgeActions.each {
-					   builds.add(build.displayName[1..-1])
-				   }
-			      }
-			  }
-			  builds.unique()
-			  for (build in builds)    {
-				  containerId = sh(script: 'docker ps -aqf "name=devops-app"', returnStdout: true)
-				if(containerId != '')	{
-					sh 'docker stop devops-app'
-					sh 'docker rm devops-app'
+		    try	{
+		    	  def buildNumber = "${BUILD_ID}" as int
+			  while (buildNumber != 0)    {
+				try	{
+					containerId = sh(script: 'docker ps -aqf "name=devops-app"', returnStdout: true)
+					if(containerId != '')	{
+						sh 'docker stop devops-app'
+						sh 'docker rm devops-app'
+					}
+					buildNumber = buildNumber - 1
+					sh 'docker run -d --name=devops-app -p 3000:3000 -v /home/centos/logs:/logs eaingaran/devops-app:' + buildNumber
+					break
+				} catch(Exception e)	{
+					continue
 				}
-				sh 'docker run -d --name=devops-app -p 3000:3000 -v /home/centos/logs:/logs eaingaran/devops-app:' + build
-				break
 			}
-		    //} catch (Exception e)	{
-		    //	echo 'Application rollback failed...'
-		   // }
+		    } catch (Exception e)	{
+		    	echo 'Application rollback failed...'
+		    }
                 }
             }
         }
