@@ -252,7 +252,7 @@ spec:
 							sh 'docker stop devops-app'
 							sh 'docker rm devops-app'
 						}
-						sh 'docker run -d --name=devops-app -p 3000:3000 devops/devops-app:${BUILD_ID}'
+						sh 'docker run -d --name=devops-app -p 3000:3000 54.218.219.205:30003/devops/devops-app:${BUILD_ID}'
 						isApplicationDeploymentSuccess = 'Success'
 					} catch(Exception e)	{
 						isApplicationDeploymentSuccess = 'Failed'
