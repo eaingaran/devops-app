@@ -131,10 +131,14 @@ pipeline {
 			steps {
 				script{
 					try{
-							sh 'pwd'
+							writeFile file: 'Dockerfile', text: 'FROM openjdk:8-jdk-alpine\nUSER root\nCOPY devops-app-1.0.0.jar /app\nEXPOSE 3000\nCMD ["/usr/bin/java", "-jar", "devops-app-1.0.0.jar"]'
+							sh 'ls'
+							sh 'cat Dockerfile'
+							sh 'mv Dockerfile application/target/Dockerfile && cd application/target && docker build --tag=54.218.219.205:30003/devops/devops-app:${BUILD_ID} .'
+							/*sh 'pwd'
 							sh 'ls'
 							sh '''cd application/target && \
-echo $'# Start with a base image containing Java runtime
+echo "# Start with a base image containing Java runtime
 FROM openjdk:8-jdk-alpine
 
 USER root
@@ -145,8 +149,8 @@ EXPOSE 3000
 
 CMD [\"sleep\", \"10m\"]
 
-#CMD [\"/usr/bin/java\", \"-jar\", \"devops-app-1.0.0.jar\"]' > Dockerfile && \
-docker build --tag=54.218.219.205:30003/devops/devops-app:${BUILD_ID} .'''
+#CMD [\"/usr/bin/java\", \"-jar\", \"devops-app-1.0.0.jar\"]" > Dockerfile && \
+docker build --tag=54.218.219.205:30003/devops/devops-app:${BUILD_ID} .'''*/
 							isApplicationDeploymentSuccess = 'Success'
 						} catch(Exception e)	{
 							isApplicationDeploymentSuccess = 'Failed'
