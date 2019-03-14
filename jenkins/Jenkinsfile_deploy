@@ -55,7 +55,7 @@ pipeline {
                 echo isSQLDeploymentSuccess
             }
         }
-        stage('Rollback SQL script') {
+        /*stage('Rollback SQL script') {
             when {
                 expression { isSQLDeploymentSuccess == 'Failed' }
             }
@@ -69,7 +69,7 @@ pipeline {
                     }
                 }
             }
-        }
+        }*/
         stage('Testing database') {
             steps {
                 echo 'Coming Soon....'
@@ -268,7 +268,7 @@ spec:
 		}
 		stage('Rolling back the deployment') {
             when {
-                expression { isApplicationDeploymentSuccess == 'Failed' }
+                expression { isSQLDeploymentSuccess == 'Failed' || isApplicationDeploymentSuccess == 'Failed' }
             }
             steps{
                 echo 'Deploying Rollback....'
