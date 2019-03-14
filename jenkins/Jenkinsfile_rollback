@@ -64,7 +64,7 @@ pipeline {
                 expression { isRollbackSuccess != 'connection failed'}
             }
 			steps{
-				sh 'echo "kind: Service
+				sh '''echo "kind: Service
 apiVersion: v1
 metadata:
   name: devops-app
@@ -98,7 +98,7 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
-" > Appliacation.yaml'
+" > Appliacation.yaml'''
 			}
 		}
 		stage('RollbackApplication') {
