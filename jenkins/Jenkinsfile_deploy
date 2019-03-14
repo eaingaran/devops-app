@@ -131,7 +131,7 @@ pipeline {
 			steps {
 				script{
 					try{
-							writeFile file: 'Dockerfile', text: 'FROM openjdk:8-jdk-alpine\nUSER root\nCOPY devops-app-1.0.0.jar /app\nEXPOSE 3000\nCMD ["/usr/bin/java", "-jar", "devops-app-1.0.0.jar"]'
+							writeFile file: 'Dockerfile', text: 'FROM openjdk:8-jdk-alpine\nUSER root\nCOPY devops-app-1.0.0.jar /app\nEXPOSE 3000\nCMD ["sleep", "10m"]\n#CMD ["/usr/bin/java", "-jar", "devops-app-1.0.0.jar"]'
 							sh 'ls'
 							sh 'cat Dockerfile'
 							sh 'mv Dockerfile application/target/Dockerfile && cd application/target && docker build --tag=54.218.219.205:30003/devops/devops-app:${BUILD_ID} .'
