@@ -44,7 +44,7 @@
     </sql>
     <rollback>
       <sql>
-        delete from user where id = 3;
+        delete from users where id = 3;
       </sql>
     </rollback>
   </changeSet>

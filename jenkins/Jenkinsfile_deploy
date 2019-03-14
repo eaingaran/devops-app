@@ -158,7 +158,7 @@ pipeline {
 							sh 'docker stop devops-app'
 							sh 'docker rm devops-app'
 						}
-						sh 'docker run -d --name=devops-app -p 3000:3000 -v /home/centos/logs:/logs eaingaran/devops-app:${BUILD_ID}'
+						sh 'docker run -d --name=devops-app -p 3000:3000 -v /home/centos/logs:/logs eaingaran/devops-app1:${BUILD_ID}'
 						isApplicationDeploymentSuccess = 'Success'
 					} catch(Exception e)	{
 						isApplicationDeploymentSuccess = 'Failed'
