@@ -1,13 +1,7 @@
-def remote = [:]
-    remote.name = 'elk'
-    remote.host = '34.218.204.124'
-    remote.user = 'centos'
-    remote.password = 'password'
-    remote.allowAnyHosts = true
 pipeline {
     environment {
         isSQLDeploymentSuccess = ''
-		isApplicationDeploymentSuccess = ''
+	isApplicationDeploymentSuccess = ''
     }
     agent any
     tools {
@@ -242,7 +236,7 @@ spec:
 							configs: 'Application.yml',
 							enableConfigSubstitution: false
 						)*/
-						try	{
+						/*try	{
 							sshCommand remote: remote, command: "docker stop devops-app"
 						} catch(Exception e)	{
 							continue
@@ -252,13 +246,13 @@ spec:
 						} catch(Exception e)	{
 							continue
 						}
-						sshCommand remote: remote, command: "docker run -d --name=devops-app -p 3000:3000 devops/devops-app:${BUILD_ID}"
-						/*containerId = sh(script: 'docker ps -aqf "name=devops-app"', returnStdout: true)
+						sshCommand remote: remote, command: "docker run -d --name=devops-app -p 3000:3000 devops/devops-app:${BUILD_ID}"*/
+						containerId = sh(script: 'docker ps -aqf "name=devops-app"', returnStdout: true)
 						if(containerId != '')	{
 							sh 'docker stop devops-app'
 							sh 'docker rm devops-app'
 						}
-						sh 'docker run -d --name=devops-app -p 3000:3000 devops/devops-app:${BUILD_ID}'*/
+						sh 'docker run -d --name=devops-app -p 3000:3000 devops/devops-app:${BUILD_ID}'
 						isApplicationDeploymentSuccess = 'Success'
 					} catch(Exception e)	{
 						isApplicationDeploymentSuccess = 'Failed'
