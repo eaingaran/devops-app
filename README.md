@@ -13,7 +13,7 @@
 **1. Clone the application**
 
 ```bash
-git clone https://github.com/eaingaran/devops-training-application.git
+git clone https://github.com/eaingaran/devops-app.git
 ```
 
 **2. Create Mysql database**
